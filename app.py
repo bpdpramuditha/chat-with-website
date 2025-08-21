@@ -1,8 +1,20 @@
 import streamlit as st
 from langchain_core.messages import AIMessage, HumanMessage 
+from langchain_community.document_loaders import WebBaseLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 def get_response(user_input):
     return "I Don't Know"
+
+def get_vectorstore_from_url(url):
+    # get the text in document form
+    data_loader = WebBaseLoader(url)
+    document = data_loader.load()
+
+     # split the document into chunks
+    text_splitter = RecursiveCharacterTextSplitter()
+    document_parts = text_splitter.split_documents(document)
+    return document_parts
 
 # App Config
 st.set_page_config(page_title="Ask a Question", page_icon="🤖")
@@ -23,6 +35,10 @@ with st.sidebar:
         value="https://atdigital.io/",  
         disabled=True # Makes it read-only
     )
+
+document_parts = get_vectorstore_from_url(website_url)
+with st.sidebar:
+    st.write(document_parts)
 
 # User Input
 user_query = st.chat_input("Type your message here...")
